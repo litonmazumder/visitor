@@ -59,23 +59,26 @@ Route::get('/', [DashboardController::class, 'home'])->name('dashboard');
 Route::middleware(['auth'])->group(function () {
 
     Route::resource('/portal/users', UserController::class)
+        ->names('user')
         ->middleware('permission:user.view');
 
     Route::resource('/portal/permissions', PermissionController::class)
+        ->names('permission')
         ->middleware('permission:permission.view');
 
     Route::resource('/portal/roles', RoleController::class)
+        ->names('role')
         ->middleware('permission:role.view');
 
     Route::get('/portal/roles/{role}/give-permissions',
         [RoleController::class, 'AddPermissionToRole'])
         ->middleware('permission:role.edit')
-        ->name('roles.give-permissions');
+        ->name('role.give-permissions');
 
     Route::post('/portal/roles/{role}/give-permissions',
         [RoleController::class, 'GivePermissionToRole'])
         ->middleware('permission:role.edit')
-        ->name('roles.give-permissions.store');
+        ->name('role.give-permissions.store');
 });
 
 
@@ -87,11 +90,10 @@ Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
 |--------------------------------------------------------------------------
 */
 
-Route::get('/employee', [EmployeeController::class, 'index'])->name('employee.index');
 Route::post('/employee/fetch', [EmployeeController::class, 'fetchEmployee'])->name('employee.fetch');
 
 
-Route::prefix('hr')->group(function () {
+Route::prefix('hr')->middleware(['auth'])->group(function () {
 
     Route::get('/employee/list', [EmployeeController::class, 'index'])->name('employee.index');
 
@@ -137,11 +139,9 @@ Route::prefix('api/visitor')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('portal/visitor')
-    ->middleware(['permission:visitor.view'])
-    ->group(function () {
+Route::prefix('portal/visitor')->middleware(['auth'])->group(function () {
 
-        Route::get('/', [VisitorAdminController::class, 'show_all_visitor'])->name('index.visitor');
+        Route::get('/', [VisitorAdminController::class, 'show_all_visitor'])->name('visitor.index');
         Route::get('search/list', [VisitorAdminController::class, 'visitor_search'])->name('visitor.search');
         Route::get('{id}', [VisitorAdminController::class, 'visitor_details'])->name('visitor.details');
 });

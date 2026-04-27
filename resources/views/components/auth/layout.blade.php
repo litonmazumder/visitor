@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Portal Dashboard | Sign in</title>
+  <title>Operations Management | Sign in</title>
 
   <!-- Fonts -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -19,7 +19,7 @@
 
 <div class="login-box">
   <div class="login-logo">
-    <b>SCBD PORTAL</b>
+    <b>OPERATIONS MANAGEMENT</b>
   </div>
 
   <div class="card">

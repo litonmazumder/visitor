@@ -59,7 +59,7 @@
                                                     <li><div class="dropdown-divider"></div></li>
                                                     
                                                     <li>
-                                                        <form action="{{ route('permissions.destroy', $permission->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this permission?');">
+                                                        <form action="{{ route('permission.destroy', $permission->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this permission?');">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit" class="dropdown-item">

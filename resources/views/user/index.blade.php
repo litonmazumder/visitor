@@ -55,7 +55,7 @@
                                                 <ul class="dropdown-menu">
                                                     @can('user.edit')
                                                     <li>
-                                                        <a class="dropdown-item" href="{{ route('users.edit', $user->id) }}">
+                                                        <a class="dropdown-item" href="{{ route('user.edit', $user->id) }}">
                                                             <span class="fa fa-edit text-primary"></span> Edit
                                                         </a>
                                                     </li>                                                    
@@ -63,7 +63,7 @@
                                                     @can('user.delete')
                                                     <li><div class="dropdown-divider"></div></li>         
                                                     <li>
-                                                        <form action="{{ route('users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                                        <form action="{{ route('user.destroy', $user->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this user?');">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit" class="dropdown-item">

@@ -21,7 +21,7 @@
 
      <!-- Logo Section -->
      <div class="absolute top-0 right-0 p-3">
-      <!-- <img src="http://192.168.1.212/public/resource/images/Swisscontact_logo_negative_rgb.png" alt="logo" class="w-48"> -->
+      <img src="{{ asset('images/logos/logo.svg') }}" alt="logo" class="w-48">
     </div>
   </div>
 

@@ -14,11 +14,11 @@ class AppServiceProvider extends ServiceProvider
         //
     }
 
-    /**
-     * Bootstrap any application services.
-     */
-    public function boot(): void
+    public function boot()
     {
-        //
+        $this->loadMigrationsFrom([
+            database_path('migrations/employee'),
+            database_path('migrations/visitor'),
+        ]);
     }
 }

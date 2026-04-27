@@ -79,7 +79,7 @@
                                                     <li><div class="dropdown-divider"></div></li>
                                                     @can('role.delete')
                                                     <li>
-                                                        <form action="{{ route('roles.destroy', $role->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this permission?');">
+                                                        <form action="{{ route('role.destroy', $role->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this permission?');">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit" class="dropdown-item">

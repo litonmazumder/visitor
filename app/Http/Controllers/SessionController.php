@@ -38,7 +38,7 @@ class SessionController extends Controller
         // If authentication succeeds, regenerate the session and redirect to the admin page
         request()->session()->regenerate();
     
-        return redirect()->intended(route('visitor.index'));
+        return redirect()->intended(route('dashboard'));
     }
     
     public function destroy(Request $request)

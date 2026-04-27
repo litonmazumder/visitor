@@ -23,7 +23,7 @@
             {{-- Dashboard --}}
             <li class="nav-item">
                 <a href="{{ route('dashboard') }}"
-                   class="nav-link {{ request()->routeIs('admin.index') ? 'active' : '' }}">
+                   class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                     <i class="nav-icon fas fa-home"></i>
                     <p>Dashboard</p>
                 </a>
@@ -36,7 +36,7 @@
                 @can('hr.view')
                 <li class="nav-item">
                     <a href="{{ route('employee.index') }}"
-                       class="nav-link {{ request()->is('portal/employee*') ? 'active' : '' }}">
+                       class="nav-link {{ request()->routeIs('employee.index') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-user-check"></i>
                         <p>Employee</p>
                     </a>
@@ -51,8 +51,8 @@
 
                 @can('visitor.view')
                 <li class="nav-item">
-                    <a href="{{ url('/portal/visitor') }}"
-                       class="nav-link {{ request()->is('portal/visitor*') ? 'active' : '' }}">
+                    <a href="{{ route('visitor.index') }}"
+                       class="nav-link {{ request()->routeIs('visitor.index') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-user-check"></i>
                         <p>Visitor</p>
                     </a>
@@ -67,8 +67,8 @@
 
                 @can('role.view')
                 <li class="nav-item">
-                    <a href="{{ url('/portal/roles') }}"
-                       class="nav-link {{ request()->is('portal/roles*') ? 'active' : '' }}">
+                    <a href="{{ route('role.index') }}"
+                       class="nav-link {{ request()->routeIs('role.*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-user-tag"></i>
                         <p>Roles</p>
                     </a>
@@ -77,8 +77,8 @@
 
                 @can('user.view')
                 <li class="nav-item">
-                    <a href="{{ url('/portal/users') }}"
-                       class="nav-link {{ request()->is('portal/users*') ? 'active' : '' }}">
+                    <a href="{{ route('user.index') }}"
+                       class="nav-link {{ request()->routeIs('user.*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-users"></i>
                         <p>Users</p>
                     </a>
@@ -88,8 +88,8 @@
 
                 @can('permission.view')
                 <li class="nav-item">
-                    <a href="{{ url('/portal/permissions') }}"
-                       class="nav-link {{ request()->is('portal/permissions*') ? 'active' : '' }}">
+                    <a href="{{ route('permission.index') }}"
+                       class="nav-link {{ request()->routeIs('permission.*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-lock"></i>
                         <p>Permissions</p>
                     </a>
