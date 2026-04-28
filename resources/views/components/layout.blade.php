@@ -21,7 +21,7 @@
 
      <!-- Logo Section -->
      <div class="absolute top-0 right-0 p-3">
-      <img src="{{ asset('images/logos/logo.svg') }}" alt="logo" class="w-48">
+      <!-- <img src="{{ asset('images/logos/logo.svg') }}" alt="logo" class="w-48"> -->
     </div>
   </div>
 
