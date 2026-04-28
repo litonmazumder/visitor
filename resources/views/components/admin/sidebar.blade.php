@@ -1,7 +1,7 @@
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
 
 <a href="#" class="brand-link">
-    <span class="brand-text font-weight-bold">SCBD PORTAL</span>
+    <span class="brand-text font-weight-bold">Operations</span>
 </a>
 
 <div class="sidebar">
@@ -12,9 +12,7 @@
 
     @php
         $user = auth()->user();
-
-        $operationsPermissions = ['visitor.view'];
-        $adminPermissions = ['role.view', 'user.view', 'permission.view'];
+        $role = $user->role ?? null;
     @endphp
 
     <nav>
@@ -29,11 +27,10 @@
                 </a>
             </li>
 
-          {{-- HR --}}
-            @canany($operationsPermissions)
+            {{-- ================= HR ================= --}}
+            @if(in_array($role, ['admin','staff']))
                 <li class="nav-header">HUMAN RESOURCES</li>
 
-                @can('hr.view')
                 <li class="nav-item">
                     <a href="{{ route('employee.index') }}"
                        class="nav-link {{ request()->routeIs('employee.index') ? 'active' : '' }}">
@@ -41,15 +38,13 @@
                         <p>Employee</p>
                     </a>
                 </li>
-                @endcan
+            @endif
 
-            @endcanany
 
-            {{-- OPERATIONS --}}
-            @canany($operationsPermissions)
+            {{-- ================= OPERATIONS ================= --}}
+            @if(in_array($role, ['admin','staff']))
                 <li class="nav-header">OPERATIONS</li>
 
-                @can('visitor.view')
                 <li class="nav-item">
                     <a href="{{ route('visitor.index') }}"
                        class="nav-link {{ request()->routeIs('visitor.index') ? 'active' : '' }}">
@@ -57,15 +52,13 @@
                         <p>Visitor</p>
                     </a>
                 </li>
-                @endcan
+            @endif
 
-            @endcanany
 
-            {{-- ADMIN --}}
-            @canany($adminPermissions)
+            {{-- ================= ADMIN ================= --}}
+            @if($role === 'admin')
                 <li class="nav-header">ADMINISTRATION</li>
 
-                @can('role.view')
                 <li class="nav-item">
                     <a href="{{ route('role.index') }}"
                        class="nav-link {{ request()->routeIs('role.*') ? 'active' : '' }}">
@@ -73,9 +66,7 @@
                         <p>Roles</p>
                     </a>
                 </li>
-                @endcan
 
-                @can('user.view')
                 <li class="nav-item">
                     <a href="{{ route('user.index') }}"
                        class="nav-link {{ request()->routeIs('user.*') ? 'active' : '' }}">
@@ -84,9 +75,6 @@
                     </a>
                 </li>
 
-                @endcan
-
-                @can('permission.view')
                 <li class="nav-item">
                     <a href="{{ route('permission.index') }}"
                        class="nav-link {{ request()->routeIs('permission.*') ? 'active' : '' }}">
@@ -94,8 +82,7 @@
                         <p>Permissions</p>
                     </a>
                 </li>
-                @endcan
-            @endcanany
+            @endif
 
         </ul>
     </nav>
