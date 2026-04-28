@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('employees', function (Blueprint $table) {
-            $table->id(); // primary key (id)
+            $table->employee_id(); // primary key (id)
 
             $table->string('name');
             $table->string('email')->unique();
