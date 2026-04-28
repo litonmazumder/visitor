@@ -56,31 +56,22 @@ Route::get('/', [DashboardController::class, 'home'])->name('dashboard');
 
 });
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth','role:admin'])->group(function () {
 
-    Route::resource('/portal/users', UserController::class)
-        ->names('user')
-        ->middleware('permission:user.view');
+    Route::resource('/portal/users', UserController::class)->names('user');
 
-    Route::resource('/portal/permissions', PermissionController::class)
-        ->names('permission')
-        ->middleware('permission:permission.view');
+    Route::resource('/portal/permissions', PermissionController::class)->names('permission');
 
-    Route::resource('/portal/roles', RoleController::class)
-        ->names('role')
-        ->middleware('permission:role.view');
+    Route::resource('/portal/roles', RoleController::class)->names('role');
 
     Route::get('/portal/roles/{role}/give-permissions',
         [RoleController::class, 'AddPermissionToRole'])
-        ->middleware('permission:role.edit')
         ->name('role.give-permissions');
 
     Route::post('/portal/roles/{role}/give-permissions',
         [RoleController::class, 'GivePermissionToRole'])
-        ->middleware('permission:role.edit')
         ->name('role.give-permissions.store');
 });
-
 
 Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
 
