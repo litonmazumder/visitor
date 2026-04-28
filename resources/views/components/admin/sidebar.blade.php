@@ -54,36 +54,6 @@
                 </li>
             @endif
 
-
-            {{-- ================= ADMIN ================= --}}
-            @if($role === 'admin')
-                <li class="nav-header">ADMINISTRATION</li>
-
-                <li class="nav-item">
-                    <a href="{{ route('role.index') }}"
-                       class="nav-link {{ request()->routeIs('role.*') ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-user-tag"></i>
-                        <p>Roles</p>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a href="{{ route('user.index') }}"
-                       class="nav-link {{ request()->routeIs('user.*') ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-users"></i>
-                        <p>Users</p>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a href="{{ route('permission.index') }}"
-                       class="nav-link {{ request()->routeIs('permission.*') ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-lock"></i>
-                        <p>Permissions</p>
-                    </a>
-                </li>
-            @endif
-
         </ul>
     </nav>
 

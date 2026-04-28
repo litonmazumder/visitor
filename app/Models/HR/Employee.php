@@ -5,12 +5,10 @@ namespace App\Models\HR;
 use App\Models\Project\Project;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Spatie\Permission\Traits\HasRoles;
 
 
 class Employee extends Authenticatable
 {
-    use HasRoles;
 
     protected $fillable = [
                 'name',
