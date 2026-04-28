@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('mobile')->unique();
             $table->string('email');
-            $table->string('company');
+            $table->unsignedBigInteger('visitor_company_id');
             $table->boolean('status')->default(true);
             $table->timestamps();
         });
