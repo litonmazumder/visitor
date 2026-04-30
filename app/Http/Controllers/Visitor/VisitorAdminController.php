@@ -26,37 +26,8 @@ class VisitorAdminController extends Controller
             return $visitor->latest_visit ? $visitor->latest_visit->entry_time : null;
         });
         
-
-
-  //  $AllVisitors = Visitor::orderBy('created_at', 'desc')->get();
-      
-// Step 1: Retrieve all visitors with their visits (lazy load staff later)
-// $AllVisitors = Visitor::with(['visits' => function ($query) {
-//     $query->orderBy('entry_time', 'desc'); // Order by entry_time to get the latest visit first
-// }])
-// ->get()
-// ->map(function ($visitor) {
-//     // Get the latest visit
-//     $latestVisit = $visitor->visits->first();
-    
-//     // If there's a latest visit, load the staff information lazily
-//     if ($latestVisit) {
-//         $latestVisit->load('staff'); // Lazy load the staff relationship
-//         $visitor->latest_visit = $latestVisit;
-//         $visitor->staff_name = $latestVisit->staff ? $latestVisit->staff->emp_name : 'N/A';
-//     } else {
-//         $visitor->latest_visit = null;
-//         $visitor->staff_name = 'N/A';
-//     }
-    
-//     return $visitor;
-// })
-// ->sortByDesc(function ($visitor) {
-//     return $visitor->latest_visit ? $visitor->latest_visit->entry_time : null;
-// });
-
-// Pass the data to the view
-return view('visitor.show', ['ShowVisitors' => $AllVisitors]);
+    // Pass the data to the view
+    return view('visitor.show', ['ShowVisitors' => $AllVisitors]);
 
     }
 
@@ -91,6 +62,54 @@ return view('visitor.show', ['ShowVisitors' => $AllVisitors]);
     
         return view('visitor.search-list', compact('ShowVisitors'));
     }
+
+    public function showActiveVisitors()
+    {
+        return view('visitor.active');
+    }
+
+    public function fetchActiveVisitors()
+    {
+        // Fetch visits where is_entered = 1 and join with visitors table
+        $activeVisitors = Visit::with('visitor.company', 'employee')
+        ->where('is_entered', 1)
+        ->orderBy('created_at', 'desc')
+        ->get();
+        
+        // ->each(function($visit) {
+        //     Log::info('Visit Data:', $visit->toArray());
+        // });   
+            
+        return response()->json($activeVisitors);
+    }
+
+    public function exitVisitor(Request $request)
+    {
+        $visitId = $request->input('visit_id');
+
+        $visit = Visit::find($visitId);
+
+        if ($visit) {
+            // Update visit fields
+            $visit->is_entered = 0;
+            $visit->save();
+    
+            // Check if the visit has an associated card
+            if ($visit->card) {
+                // Update is_assigned field in the related VisitorCard model
+                $visit->card->is_assigned = 0;
+                $visit->exit_time = now();
+                $visit->save();
+                $visit->card->save();
+            }
+    
+            // Return a successful response
+            return response()->json(['success' => true]);
+        }
+
+        return response()->json(['success' => false], 404);
+    }
+
     
 
 }

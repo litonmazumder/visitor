@@ -18,53 +18,6 @@ use Illuminate\Support\Facades\DB;
 class VisitorController extends Controller
 {
 
-    public function showActiveVisitors()
-    {
-        return view('visitor.active');
-    }
-
-    public function fetchActiveVisitors()
-    {
-        // Fetch visits where is_entered = 1 and join with visitors table
-        $activeVisitors = Visit::with('visitor.company', 'employee')
-        ->where('is_entered', 1)
-        ->orderBy('created_at', 'desc')
-        ->get();
-        
-        // ->each(function($visit) {
-        //     Log::info('Visit Data:', $visit->toArray());
-        // });   
-            
-        return response()->json($activeVisitors);
-    }
-
-    public function exitVisitor(Request $request)
-    {
-        $visitId = $request->input('visit_id');
-
-        $visit = Visit::find($visitId);
-
-        if ($visit) {
-            // Update visit fields
-            $visit->is_entered = 0;
-            $visit->save();
-    
-            // Check if the visit has an associated card
-            if ($visit->card) {
-                // Update is_assigned field in the related VisitorCard model
-                $visit->card->is_assigned = 0;
-                $visit->exit_time = now();
-                $visit->save();
-                $visit->card->save();
-            }
-    
-            // Return a successful response
-            return response()->json(['success' => true]);
-        }
-
-        return response()->json(['success' => false], 404);
-    }
-
     public function register()
     {
         $title = 'Visitor Registration';

@@ -52,23 +52,23 @@ Route::get('/csrf-token', function () {
 
 Route::middleware(['auth'])->group(function () {
 
-Route::get('/', [DashboardController::class, 'home'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'home'])->name('dashboard');
 
 });
 
 Route::middleware(['auth','role:admin'])->group(function () {
 
-    Route::resource('/portal/users', UserController::class)->names('user');
+    Route::resource('/dashboard/users', UserController::class)->names('user');
 
-    Route::resource('/portal/permissions', PermissionController::class)->names('permission');
+    Route::resource('/dashboard/permissions', PermissionController::class)->names('permission');
 
-    Route::resource('/portal/roles', RoleController::class)->names('role');
+    Route::resource('/dashboard/roles', RoleController::class)->names('role');
 
-    Route::get('/portal/roles/{role}/give-permissions',
+    Route::get('/dashboard/roles/{role}/give-permissions',
         [RoleController::class, 'AddPermissionToRole'])
         ->name('role.give-permissions');
 
-    Route::post('/portal/roles/{role}/give-permissions',
+    Route::post('/dashboard/roles/{role}/give-permissions',
         [RoleController::class, 'GivePermissionToRole'])
         ->name('role.give-permissions.store');
 });
@@ -84,9 +84,9 @@ Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
 Route::post('/employee/fetch', [EmployeeController::class, 'fetchEmployee'])->name('employee.fetch');
 
 
-Route::prefix('hr')->middleware(['auth'])->group(function () {
+Route::prefix('dashboard')->middleware(['auth'])->group(function () {
 
-    Route::get('/employee/list', [EmployeeController::class, 'index'])->name('employee.index');
+    Route::get('/employee', [EmployeeController::class, 'index'])->name('employee.index');
 
     Route::get('/employee/create', [EmployeeController::class, 'create'])->name('employee.create');
     Route::post('/employee/store', [EmployeeController::class, 'store'])->name('employee.store');
@@ -106,7 +106,6 @@ Route::prefix('visitor')->group(function () {
     Route::get('register', [VisitorController::class, 'register']);
     Route::get('search', [VisitorController::class, 'search']);
     Route::get('search/result', [VisitorController::class, 'result']);
-    Route::get('active', [VisitorController::class, 'showActiveVisitors']);
 
     Route::post('store', [VisitorController::class, 'store'])->name('visitor.store');
     Route::post('record', [VisitorController::class, 'recordVisit'])->name('record.visit');
@@ -119,8 +118,6 @@ Route::prefix('visitor')->group(function () {
 */
 
 Route::prefix('api/visitor')->group(function () {
-    Route::get('active', [VisitorController::class, 'fetchActiveVisitors'])->name('api.visitor.active');
-    Route::post('exit', [VisitorController::class, 'exitVisitor'])->name('api.visitor.exit');
     Route::get('staff-suggestions', [VisitorController::class, 'fetchStaffSuggestions'])->name('api.visitor.staff-suggestions');
 });
 
@@ -130,9 +127,12 @@ Route::prefix('api/visitor')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('portal/visitor')->middleware(['auth'])->group(function () {
+Route::prefix('dashboard/visitor')->middleware(['auth'])->group(function () {
 
         Route::get('/', [VisitorAdminController::class, 'show_all_visitor'])->name('visitor.index');
+        Route::get('active', [VisitorAdminController::class, 'showActiveVisitors'])->name('visitor.active');
+        Route::get('fetch', [VisitorAdminController::class, 'fetchActiveVisitors'])->name('api.visitor.active');
+        Route::post('exit', [VisitorAdminController::class, 'exitVisitor'])->name('api.visitor.exit');
         Route::get('search/list', [VisitorAdminController::class, 'visitor_search'])->name('visitor.search');
         Route::get('{id}', [VisitorAdminController::class, 'visitor_details'])->name('visitor.details');
 });

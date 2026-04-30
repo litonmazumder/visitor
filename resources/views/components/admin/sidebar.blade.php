@@ -34,7 +34,7 @@
                 <li class="nav-item">
                     <a href="{{ route('employee.index') }}"
                        class="nav-link {{ request()->routeIs('employee.index') ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-user-check"></i>
+                        <i class="nav-icon fas fa-id-badge"></i>
                         <p>Employee</p>
                     </a>
                 </li>
@@ -48,8 +48,16 @@
                 <li class="nav-item">
                     <a href="{{ route('visitor.index') }}"
                        class="nav-link {{ request()->routeIs('visitor.index') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-user"></i>
+                        <p>Visitors</p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="{{ route('visitor.active') }}"
+                       class="nav-link {{ request()->routeIs('visitor.active') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-user-check"></i>
-                        <p>Visitor</p>
+                        <p>Active Visitors</p>
                     </a>
                 </li>
             @endif
