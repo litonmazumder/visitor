@@ -103,9 +103,9 @@ Route::prefix('dashboard')->middleware(['auth'])->group(function () {
 */
 
 Route::prefix('visitor')->group(function () {
-    Route::get('register', [VisitorController::class, 'register']);
-    Route::get('search', [VisitorController::class, 'search']);
-    Route::get('search/result', [VisitorController::class, 'result']);
+    Route::get('register', [VisitorController::class, 'register'])->name('visitor.register');
+    Route::get('search', [VisitorController::class, 'search'])->name('visitor.search');
+    Route::get('search/result', [VisitorController::class, 'result'])->name('visitor.result');
 
     Route::post('store', [VisitorController::class, 'store'])->name('visitor.store');
     Route::post('record', [VisitorController::class, 'recordVisit'])->name('record.visit');
@@ -133,6 +133,6 @@ Route::prefix('dashboard/visitor')->middleware(['auth'])->group(function () {
         Route::get('active', [VisitorAdminController::class, 'showActiveVisitors'])->name('visitor.active');
         Route::get('fetch', [VisitorAdminController::class, 'fetchActiveVisitors'])->name('api.visitor.active');
         Route::post('exit', [VisitorAdminController::class, 'exitVisitor'])->name('api.visitor.exit');
-        Route::get('search/list', [VisitorAdminController::class, 'visitor_search'])->name('visitor.search');
+        Route::get('search', [VisitorAdminController::class, 'visitor_search'])->name('visitor_list.search');
         Route::get('{id}', [VisitorAdminController::class, 'visitor_details'])->name('visitor.details');
 });

@@ -1,8 +1,8 @@
 <x-admin.layout title="Visitor List">
     <section class="content">
         <div class="container-fluid">
-         
-             <!-- Filter Card -->
+
+            <!-- Filter Card -->
             <div class="card card-outline card-primary mb-4">
                 <div class="card-header">
                     <h3 class="card-title mb-0">
@@ -42,7 +42,7 @@
                             <div class="col-md-4 d-flex align-items-end">
                                 <div class="w-100 d-flex justify-content-end">
                                     
-                                    <a href="{{ route('visitor.index') }}" class="btn btn-secondary mr-2">
+                                    <a href="{{ route('dashboard') }}" class="btn btn-secondary mr-2">
                                         <i class="fas fa-undo"></i> Reset
                                     </a>
 
@@ -58,45 +58,65 @@
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-12">
-                    <!-- Card -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">All Visitor List</h3>
-                        </div>
-                        <div class="card-body">
-                            <table class="datatable table table-bordered table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>#SN</th>
-                                        <th>Visitor Name</th>
-                                        <th>Organization</th>
-                                        <th>Mobile</th>
-                                        <th>Email</th>
-                                        <th>Visit To</th>
-                                        <th>Entry Time</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($ShowVisitors as $visitor)
+            <!-- Visitor Table -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-users mr-2"></i> All Visitor List
+                    </h3>
+                </div>
+
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="datatable table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>#SN</th>
+                                    <th>Visitor Name</th>
+                                    <th>Organization</th>
+                                    <th>Mobile</th>
+                                    <th>Email</th>
+                                    <th>Visit To</th>
+                                    <th>Entry Time</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @forelse ($ShowVisitors as $visitor)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
-                                        <td><a href="{{ $visitor->visitor ? route('visitor.details', $visitor->visitor->id) : '#' }}">{{ $visitor->visitor->name ?? 'N/A' }}</a></td>
-                                        <td>{{ $visitor->visitor->company->name ?? 'N/A' }}</td>
-                                        <td>{{ $visitor->visitor->mobile ?? 'N/A' }}</td>
-                                        <td>{{ $visitor->visitor->email ?? 'N/A' }}</td>
-                                        <td>{{ $visitor->staff->name ?? 'N/A' }}</td>
-                                        <td>{{ $visitor->entry_time ? $visitor->entry_time->format('d-M-y H:i a') : 'N/A' }}</td>
+
+                                        <td>
+                                            <a href="{{ route('visitor.details', $visitor->id) }}" class="font-weight-bold text-primary">
+                                                {{ $visitor->name ?? 'N/A' }}
+                                            </a>
+                                        </td>
+
+                                        <td>{{ $visitor->company->name ?? 'N/A' }}</td>
+                                        <td>{{ $visitor->mobile ?? 'N/A' }}</td>
+                                        <td>{{ $visitor->email ?? 'N/A' }}</td>
+                                        <td>{{ $visitor->latest_visit->employee->name ?? 'N/A' }}</td>
+
+                                        <td>
+                                            {{ $visitor->latest_visit && $visitor->latest_visit->entry_time 
+                                                ? $visitor->latest_visit->entry_time->format('d-M-y h:i A') 
+                                                : 'N/A' }}
+                                        </td>
                                     </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+                                @empty
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted">
+                                            No visitors found
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+
+                        </table>
                     </div>
                 </div>
             </div>
+
         </div>
     </section>
-
 </x-admin.layout>

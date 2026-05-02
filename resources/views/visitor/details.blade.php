@@ -7,8 +7,12 @@
                 <div class="col-12">
                     <!-- Card -->
                     <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Visit Details</h3>
+                      <div class="card-header d-flex justify-content-between align-items-center">
+                            <h3 class="card-title mb-0">Visit Details</h3>
+
+                            <a href="{{ route('visitor.index') }}" class="btn btn-primary ml-auto">
+                                <i class="fas fa-arrow-left"></i> Back
+                            </a>
                         </div>
                         <div class="card-body">
                             <h4>Visitor Information</h4>

@@ -27,7 +27,7 @@ class VisitorAdminController extends Controller
         });
         
     // Pass the data to the view
-    return view('visitor.show', ['ShowVisitors' => $AllVisitors]);
+    return view('visitor.index', ['ShowVisitors' => $AllVisitors]);
 
     }
 
