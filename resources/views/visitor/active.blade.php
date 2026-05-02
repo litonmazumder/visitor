@@ -95,13 +95,13 @@ $(function () {
 
                     let visitor = visit.visitor ?? {};
                     let company = visitor.company ?? {};
-                    let staff = visit.staff ?? {};
+                    let staff = visit.employee ?? {};
 
                     let row = `
                         <tr>
                             <td>${index + 1}</td>
                             <td>${visitor.name ?? 'N/A'}</td>
-                            <td>${staff.emp_name ?? 'N/A'}</td>
+                            <td>${staff.name ?? 'N/A'}</td>
                             <td>${visitor.mobile ?? 'N/A'}</td>
                             <td>${visit.purpose ?? 'N/A'}</td>
                             <td>${company.name ?? 'N/A'}</td>
