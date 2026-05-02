@@ -4,172 +4,180 @@
     <div class="container-fluid">
 
         <!-- Header -->
-        <div class="row mb-3">
+        <div class="row mb-3 items-center">
             <div class="col-sm-6">
                 <h3 class="page-title">Active Visitor Information</h3>
                 <ul class="breadcrumb">
                     <li class="breadcrumb-item">
                         <a href="{{ route('dashboard') }}">Dashboard</a>
                     </li>
-                    <li class="breadcrumb-item active">Active Visitor</li>
+                    <li class="breadcrumb-item active">
+                        Active Visitor
+                    </li>
                 </ul>
             </div>
         </div>
 
-        <!-- Alpine App -->
-        <div x-data="visitorApp()" x-init="init()">
-
-            <!-- Card -->
-            <div class="card">
-
-                <!-- Header -->
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <strong>
-                        Total Active Visitors:
-                        <span class="badge badge-primary" x-text="visitors.length"></span>
-                    </strong>
-
-                    <input type="text"
-                           x-model="search"
-                           @input.debounce.400ms="fetchData()"
-                           class="form-control w-25"
-                           placeholder="Search visitor...">
-                </div>
-
-                <!-- Table -->
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped mb-0">
-
-                            <thead class="thead-light">
-                                <tr>
-                                    <th>#</th>
-                                    <th>Name</th>
-                                    <th>To Whom</th>
-                                    <th>Mobile</th>
-                                    <th>Purpose</th>
-                                    <th>From</th>
-                                    <th>Card No</th>
-                                    <th>Entry Time</th>
-                                    <th class="text-center">Action</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-
-                                <!-- Loading -->
-                                <template x-if="loading">
-                                    <tr>
-                                        <td colspan="9" class="text-center py-3 text-muted">
-                                            Loading visitors...
-                                        </td>
-                                    </tr>
-                                </template>
-
-                                <!-- No Data -->
-                                <template x-if="!loading && visitors.length === 0">
-                                    <tr>
-                                        <td colspan="9" class="text-center py-3 text-muted">
-                                            No active visitors found
-                                        </td>
-                                    </tr>
-                                </template>
-
-                                <!-- Data -->
-                                <template x-for="(visit, index) in visitors" :key="visit.id">
-                                    <tr>
-                                        <td x-text="index + 1"></td>
-                                        <td x-text="visit.visitor?.name || 'N/A'"></td>
-                                        <td x-text="visit.employee?.name || 'N/A'"></td>
-                                        <td x-text="visit.visitor?.mobile || 'N/A'"></td>
-                                        <td x-text="visit.purpose || 'N/A'"></td>
-                                        <td x-text="visit.visitor?.company?.name || 'N/A'"></td>
-                                        <td x-text="visit.cardno || 'N/A'"></td>
-                                        <td x-text="formatTime(visit.entry_time)"></td>
-                                        <td class="text-center">
-                                            <button 
-                                                @click="exitVisitor(visit.id)"
-                                                class="btn btn-danger btn-sm">
-                                                Exit
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </template>
-
-                            </tbody>
-
-                        </table>
-                    </div>
-                </div>
-
+        <!-- Card -->
+        <div class="card">
+            <div class="card-header flex justify-between items-center">
+                <strong>
+                    Total Active Visitors:
+                    <span id="total-count" class="bg-primary text-white px-2 py-1 rounded">
+                        0
+                    </span>
+                </strong>
             </div>
 
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="datatable table table-bordered table-striped mb-0">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>To Whom</th>
+                                <th>Mobile</th>
+                                <th>Purpose</th>
+                                <th>From</th>
+                                <th>Card No</th>
+                                <th>Entry Time</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="live-data-body">
+                            <tr>
+                                <td colspan="9" class="text-center py-3">
+                                    Loading...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
     </div>
 </section>
 
-<!-- Alpine.js -->
-<script src="https://unpkg.com/alpinejs" defer></script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
-function visitorApp() {
-    return {
-        visitors: [],
-        search: '',
-        loading: true,
+$(function () {
 
-        init() {
-            this.fetchData();
+    function fetchActiveVisitors(searchTerm = '') {
+        $.ajax({
+            url: '{{ route('api.visitor.active') }}',
+            method: 'GET',
+            data: { searchTerm: searchTerm },
 
-            // Auto refresh every 5 seconds
-            setInterval(() => {
-                this.fetchData();
-            }, 5000);
-        },
+            success: function(data) {
 
-        fetchData() {
-            this.loading = true;
+                let tbody = $('#live-data-body');
+                tbody.empty();
 
-            fetch("{{ url('dashboard/visitor/fetch') }}?searchTerm=" + this.search)
-                .then(res => res.json())
-                .then(data => {
-                    this.visitors = data;
-                    this.loading = false;
-                })
-                .catch(err => {
-                    console.error("Fetch error:", err);
-                    this.loading = false;
-                });
-        },
+                $('#total-count').text(data.length);
 
-        exitVisitor(id) {
-            if (!confirm("Confirm exit?")) return;
-
-            fetch("{{ route('api.visitor.exit') }}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                },
-                body: JSON.stringify({ visit_id: id })
-            })
-            .then(res => res.json())
-            .then(res => {
-                if (res.success) {
-                    this.fetchData();
-                } else {
-                    alert("Exit failed");
+                if (data.length === 0) {
+                    tbody.append(`
+                        <tr>
+                            <td colspan="9" class="text-center py-3">
+                                No active visitors found
+                            </td>
+                        </tr>
+                    `);
+                    return;
                 }
-            })
-            .catch(err => alert("Error: " + err));
-        },
 
-        formatTime(time) {
-            return time ? new Date(time).toLocaleString() : 'N/A';
-        }
+                data.forEach((visit, index) => {
+
+                    let visitor = visit.visitor ?? {};
+                    let company = visitor.company ?? {};
+                    let staff = visit.employee ?? {};
+
+                    let row = `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${visitor.name ?? 'N/A'}</td>
+                            <td>${staff.name ?? 'N/A'}</td>
+                            <td>${visitor.mobile ?? 'N/A'}</td>
+                            <td>${visit.purpose ?? 'N/A'}</td>
+                            <td>${company.name ?? 'N/A'}</td>
+                            <td>${visit.cardno ?? 'N/A'}</td>
+                            <td>${visit.entry_time ? new Date(visit.entry_time).toLocaleString() : 'N/A'}</td>
+                            <td class="text-center">
+                                <button 
+                                    class="btn btn-danger btn-sm exit-button"
+                                    data-id="${visit.id}">
+                                    Exit
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+
+                    tbody.append(row);
+                });
+            },
+
+            error: function(xhr) {
+                console.error(xhr.responseText);
+            }
+        });
     }
-}
+
+
+    function exitVisitor(id) {
+        $.ajax({
+            url: '{{ route('api.visitor.exit') }}',
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                visit_id: id
+            },
+
+            success: function(res) {
+                if (res.success) {
+                    fetchActiveVisitors($('#searchCard').val());
+                } else {
+                    alert('Exit failed');
+                }
+            },
+
+            error: function(xhr) {
+                alert('Error: ' + xhr.responseText);
+            }
+        });
+    }
+
+
+    // Exit click
+    $(document).on('click', '.exit-button', function () {
+        let id = $(this).data('id');
+
+        if (confirm('Confirm exit?')) {
+            exitVisitor(id);
+        }
+    });
+
+
+    // Search
+    $('#searchCard').on('input', function () {
+        fetchActiveVisitors($(this).val());
+    });
+
+
+    // Auto refresh
+    setInterval(() => {
+        fetchActiveVisitors($('#searchCard').val());
+    }, 5000);
+
+
+    // Initial load
+    fetchActiveVisitors();
+
+});
 </script>
 
 </x-admin.layout>
