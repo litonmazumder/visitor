@@ -4,7 +4,7 @@
     <div class="container-fluid">
 
         <!-- Header -->
-        <div class="row mb-3 items-center">
+        <div class="row mb-3">
             <div class="col-sm-6">
                 <h3 class="page-title">Active Visitor Information</h3>
                 <ul class="breadcrumb">
@@ -20,19 +20,27 @@
 
         <!-- Card -->
         <div class="card">
-            <div class="card-header flex justify-between items-center">
+
+            <!-- Header with Search -->
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <strong>
                     Total Active Visitors:
-                    <span id="total-count" class="bg-primary text-white px-2 py-1 rounded">
+                    <span id="total-count" class="badge badge-primary">
                         0
                     </span>
                 </strong>
+
+                <input type="text"
+                       id="searchCard"
+                       class="form-control w-25"
+                       placeholder="Search by name / card...">
             </div>
 
+            <!-- Table -->
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="datatable table table-bordered table-striped mb-0">
-                        <thead>
+                    <table class="table table-bordered table-striped mb-0">
+                        <thead class="thead-light">
                             <tr>
                                 <th>#</th>
                                 <th>Name</th>
@@ -48,42 +56,58 @@
 
                         <tbody id="live-data-body">
                             <tr>
-                                <td colspan="9" class="text-center py-3">
-                                    Loading...
+                                <td colspan="9" class="text-center py-3 text-muted">
+                                    Loading visitors...
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
+
         </div>
 
     </div>
 </section>
 
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
 <script>
-$(function () {
+$(document).ready(function () {
+
+    console.log("Active Visitor Script Loaded");
+
+    let debounceTimer;
 
     function fetchActiveVisitors(searchTerm = '') {
+
         $.ajax({
-            url: '{{ route('api.visitor.active') }}',
+            url: "{{ url('dashboard/visitor/fetch') }}",
             method: 'GET',
             data: { searchTerm: searchTerm },
 
+            beforeSend: function () {
+                $('#live-data-body').html(`
+                    <tr>
+                        <td colspan="9" class="text-center py-3 text-muted">
+                            Loading...
+                        </td>
+                    </tr>
+                `);
+            },
+
             success: function(data) {
+
+                console.log("DATA:", data);
 
                 let tbody = $('#live-data-body');
                 tbody.empty();
 
                 $('#total-count').text(data.length);
 
-                if (data.length === 0) {
+                if (!data || data.length === 0) {
                     tbody.append(`
                         <tr>
-                            <td colspan="9" class="text-center py-3">
+                            <td colspan="9" class="text-center py-3 text-muted">
                                 No active visitors found
                             </td>
                         </tr>
@@ -93,20 +117,24 @@ $(function () {
 
                 data.forEach((visit, index) => {
 
-                    let visitor = visit.visitor ?? {};
-                    let company = visitor.company ?? {};
-                    let staff = visit.employee ?? {};
+                    let visitor = visit.visitor || {};
+                    let company = visitor.company || {};
+                    let staff = visit.employee || {};
+
+                    let entryTime = visit.entry_time
+                        ? new Date(visit.entry_time).toLocaleString()
+                        : 'N/A';
 
                     let row = `
                         <tr>
                             <td>${index + 1}</td>
-                            <td>${visitor.name ?? 'N/A'}</td>
-                            <td>${staff.name ?? 'N/A'}</td>
-                            <td>${visitor.mobile ?? 'N/A'}</td>
-                            <td>${visit.purpose ?? 'N/A'}</td>
-                            <td>${company.name ?? 'N/A'}</td>
-                            <td>${visit.cardno ?? 'N/A'}</td>
-                            <td>${visit.entry_time ? new Date(visit.entry_time).toLocaleString() : 'N/A'}</td>
+                            <td>${visitor.name || 'N/A'}</td>
+                            <td>${staff.name || 'N/A'}</td>
+                            <td>${visitor.mobile || 'N/A'}</td>
+                            <td>${visit.purpose || 'N/A'}</td>
+                            <td>${company.name || 'N/A'}</td>
+                            <td>${visit.cardno || 'N/A'}</td>
+                            <td>${entryTime}</td>
                             <td class="text-center">
                                 <button 
                                     class="btn btn-danger btn-sm exit-button"
@@ -122,18 +150,27 @@ $(function () {
             },
 
             error: function(xhr) {
-                console.error(xhr.responseText);
+                console.error("ERROR:", xhr.responseText);
+
+                $('#live-data-body').html(`
+                    <tr>
+                        <td colspan="9" class="text-center text-danger py-3">
+                            Failed to load data
+                        </td>
+                    </tr>
+                `);
             }
         });
     }
 
 
     function exitVisitor(id) {
+
         $.ajax({
-            url: '{{ route('api.visitor.exit') }}',
+            url: "{{ route('api.visitor.exit') }}",
             method: 'POST',
             data: {
-                _token: '{{ csrf_token() }}',
+                _token: "{{ csrf_token() }}",
                 visit_id: id
             },
 
@@ -152,7 +189,7 @@ $(function () {
     }
 
 
-    // Exit click
+    // Exit button
     $(document).on('click', '.exit-button', function () {
         let id = $(this).data('id');
 
@@ -162,13 +199,17 @@ $(function () {
     });
 
 
-    // Search
+    // Search with debounce
     $('#searchCard').on('input', function () {
-        fetchActiveVisitors($(this).val());
+        clearTimeout(debounceTimer);
+
+        debounceTimer = setTimeout(() => {
+            fetchActiveVisitors($(this).val());
+        }, 400);
     });
 
 
-    // Auto refresh
+    // Auto refresh every 5 sec
     setInterval(() => {
         fetchActiveVisitors($('#searchCard').val());
     }, 5000);
