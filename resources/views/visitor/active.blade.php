@@ -11,58 +11,97 @@
                     <li class="breadcrumb-item">
                         <a href="{{ route('dashboard') }}">Dashboard</a>
                     </li>
-                    <li class="breadcrumb-item active">
-                        Active Visitor
-                    </li>
+                    <li class="breadcrumb-item active">Active Visitor</li>
                 </ul>
             </div>
         </div>
 
-        <!-- Card -->
-        <div class="card">
+        <!-- Alpine App -->
+        <div x-data="visitorApp()" x-init="init()">
 
-            <!-- Header with Search -->
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <strong>
-                    Total Active Visitors:
-                    <span id="total-count" class="badge badge-primary">
-                        0
-                    </span>
-                </strong>
+            <!-- Card -->
+            <div class="card">
 
-                <input type="text"
-                       id="searchCard"
-                       class="form-control w-25"
-                       placeholder="Search by name / card...">
-            </div>
+                <!-- Header -->
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <strong>
+                        Total Active Visitors:
+                        <span class="badge badge-primary" x-text="visitors.length"></span>
+                    </strong>
 
-            <!-- Table -->
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped mb-0">
-                        <thead class="thead-light">
-                            <tr>
-                                <th>#</th>
-                                <th>Name</th>
-                                <th>To Whom</th>
-                                <th>Mobile</th>
-                                <th>Purpose</th>
-                                <th>From</th>
-                                <th>Card No</th>
-                                <th>Entry Time</th>
-                                <th class="text-center">Action</th>
-                            </tr>
-                        </thead>
-
-                        <tbody id="live-data-body">
-                            <tr>
-                                <td colspan="9" class="text-center py-3 text-muted">
-                                    Loading visitors...
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <input type="text"
+                           x-model="search"
+                           @input.debounce.400ms="fetchData()"
+                           class="form-control w-25"
+                           placeholder="Search visitor...">
                 </div>
+
+                <!-- Table -->
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped mb-0">
+
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>To Whom</th>
+                                    <th>Mobile</th>
+                                    <th>Purpose</th>
+                                    <th>From</th>
+                                    <th>Card No</th>
+                                    <th>Entry Time</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                <!-- Loading -->
+                                <template x-if="loading">
+                                    <tr>
+                                        <td colspan="9" class="text-center py-3 text-muted">
+                                            Loading visitors...
+                                        </td>
+                                    </tr>
+                                </template>
+
+                                <!-- No Data -->
+                                <template x-if="!loading && visitors.length === 0">
+                                    <tr>
+                                        <td colspan="9" class="text-center py-3 text-muted">
+                                            No active visitors found
+                                        </td>
+                                    </tr>
+                                </template>
+
+                                <!-- Data -->
+                                <template x-for="(visit, index) in visitors" :key="visit.id">
+                                    <tr>
+                                        <td x-text="index + 1"></td>
+                                        <td x-text="visit.visitor?.name || 'N/A'"></td>
+                                        <td x-text="visit.employee?.name || 'N/A'"></td>
+                                        <td x-text="visit.visitor?.mobile || 'N/A'"></td>
+                                        <td x-text="visit.purpose || 'N/A'"></td>
+                                        <td x-text="visit.visitor?.company?.name || 'N/A'"></td>
+                                        <td x-text="visit.cardno || 'N/A'"></td>
+                                        <td x-text="formatTime(visit.entry_time)"></td>
+                                        <td class="text-center">
+                                            <button 
+                                                @click="exitVisitor(visit.id)"
+                                                class="btn btn-danger btn-sm">
+                                                Exit
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </template>
+
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+
             </div>
 
         </div>
@@ -70,155 +109,67 @@
     </div>
 </section>
 
+<!-- Alpine.js -->
+<script src="https://unpkg.com/alpinejs" defer></script>
 
 <script>
-$(document).ready(function () {
+function visitorApp() {
+    return {
+        visitors: [],
+        search: '',
+        loading: true,
 
-    console.log("Active Visitor Script Loaded");
+        init() {
+            this.fetchData();
 
-    let debounceTimer;
+            // Auto refresh every 5 seconds
+            setInterval(() => {
+                this.fetchData();
+            }, 5000);
+        },
 
-    function fetchActiveVisitors(searchTerm = '') {
+        fetchData() {
+            this.loading = true;
 
-        $.ajax({
-            url: "{{ url('dashboard/visitor/fetch') }}",
-            method: 'GET',
-            data: { searchTerm: searchTerm },
-
-            beforeSend: function () {
-                $('#live-data-body').html(`
-                    <tr>
-                        <td colspan="9" class="text-center py-3 text-muted">
-                            Loading...
-                        </td>
-                    </tr>
-                `);
-            },
-
-            success: function(data) {
-
-                console.log("DATA:", data);
-
-                let tbody = $('#live-data-body');
-                tbody.empty();
-
-                $('#total-count').text(data.length);
-
-                if (!data || data.length === 0) {
-                    tbody.append(`
-                        <tr>
-                            <td colspan="9" class="text-center py-3 text-muted">
-                                No active visitors found
-                            </td>
-                        </tr>
-                    `);
-                    return;
-                }
-
-                data.forEach((visit, index) => {
-
-                    let visitor = visit.visitor || {};
-                    let company = visitor.company || {};
-                    let staff = visit.employee || {};
-
-                    let entryTime = visit.entry_time
-                        ? new Date(visit.entry_time).toLocaleString()
-                        : 'N/A';
-
-                    let row = `
-                        <tr>
-                            <td>${index + 1}</td>
-                            <td>${visitor.name || 'N/A'}</td>
-                            <td>${staff.name || 'N/A'}</td>
-                            <td>${visitor.mobile || 'N/A'}</td>
-                            <td>${visit.purpose || 'N/A'}</td>
-                            <td>${company.name || 'N/A'}</td>
-                            <td>${visit.cardno || 'N/A'}</td>
-                            <td>${entryTime}</td>
-                            <td class="text-center">
-                                <button 
-                                    class="btn btn-danger btn-sm exit-button"
-                                    data-id="${visit.id}">
-                                    Exit
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-
-                    tbody.append(row);
+            fetch("{{ url('dashboard/visitor/fetch') }}?searchTerm=" + this.search)
+                .then(res => res.json())
+                .then(data => {
+                    this.visitors = data;
+                    this.loading = false;
+                })
+                .catch(err => {
+                    console.error("Fetch error:", err);
+                    this.loading = false;
                 });
-            },
+        },
 
-            error: function(xhr) {
-                console.error("ERROR:", xhr.responseText);
+        exitVisitor(id) {
+            if (!confirm("Confirm exit?")) return;
 
-                $('#live-data-body').html(`
-                    <tr>
-                        <td colspan="9" class="text-center text-danger py-3">
-                            Failed to load data
-                        </td>
-                    </tr>
-                `);
-            }
-        });
-    }
-
-
-    function exitVisitor(id) {
-
-        $.ajax({
-            url: "{{ route('api.visitor.exit') }}",
-            method: 'POST',
-            data: {
-                _token: "{{ csrf_token() }}",
-                visit_id: id
-            },
-
-            success: function(res) {
+            fetch("{{ route('api.visitor.exit') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: JSON.stringify({ visit_id: id })
+            })
+            .then(res => res.json())
+            .then(res => {
                 if (res.success) {
-                    fetchActiveVisitors($('#searchCard').val());
+                    this.fetchData();
                 } else {
-                    alert('Exit failed');
+                    alert("Exit failed");
                 }
-            },
+            })
+            .catch(err => alert("Error: " + err));
+        },
 
-            error: function(xhr) {
-                alert('Error: ' + xhr.responseText);
-            }
-        });
-    }
-
-
-    // Exit button
-    $(document).on('click', '.exit-button', function () {
-        let id = $(this).data('id');
-
-        if (confirm('Confirm exit?')) {
-            exitVisitor(id);
+        formatTime(time) {
+            return time ? new Date(time).toLocaleString() : 'N/A';
         }
-    });
-
-
-    // Search with debounce
-    $('#searchCard').on('input', function () {
-        clearTimeout(debounceTimer);
-
-        debounceTimer = setTimeout(() => {
-            fetchActiveVisitors($(this).val());
-        }, 400);
-    });
-
-
-    // Auto refresh every 5 sec
-    setInterval(() => {
-        fetchActiveVisitors($('#searchCard').val());
-    }, 5000);
-
-
-    // Initial load
-    fetchActiveVisitors();
-
-});
+    }
+}
 </script>
 
 </x-admin.layout>
