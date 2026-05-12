@@ -35,7 +35,7 @@
     </div>
 
     <footer class="main-footer text-center text-muted">
-        <strong>© {{ date('Y') }} SCBD Portal</strong> — IT Team
+        <strong>© {{ date('Y') }} Developed By FusionGears</strong>
     </footer>
 
 </div>
