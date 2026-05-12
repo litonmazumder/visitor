@@ -17,7 +17,7 @@ public function run()
         [
             'name' => 'Super Admin',
             'role' => 'admin',
-            'password' => Hash::make('Admin123!'),
+            'password' => Hash::make('Admin123'),
         ]
     );
 }
