@@ -69,7 +69,7 @@ $(function () {
 
     function fetchActiveVisitors(searchTerm = '') {
         $.ajax({
-            url: '{{ route('api.visitor.active') }}',
+            url: '/dashboard/visitor/fetch',
             method: 'GET',
             data: { searchTerm: searchTerm },
 
@@ -130,7 +130,7 @@ $(function () {
 
     function exitVisitor(id) {
         $.ajax({
-            url: '{{ route('api.visitor.exit') }}',
+            url: '/dashboard/visitor/exit',
             method: 'POST',
             data: {
                 _token: '{{ csrf_token() }}',
